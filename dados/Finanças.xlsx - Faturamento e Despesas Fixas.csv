@@ -1,0 +1,18 @@
+,Despesas fixas e faturamento,,,,,,,,,,,
+,"Insira as despesas mensais fixas do seu negócio. Elas influenciam a taxa de markup e, consequentemente, a precificação. Veja também a participação de impostos e custos fixos no seu faturamento. Lembrete: não altere os campos em azul-claro, eles são calculados automaticamente.        ",,,,,,,,,,,
+Mês de referência: mês/20xx,,,,,,,,,,,,
+,Despesa mensal da empresa ,Valores (R$),,Faturamento,,,,,Custos Variáveis,% sobre o faturamento,Valor (R$),
+,Plataformas/softwares,"R$ 1.500,00",,Despesas,Receita,Lucro,% de custos,,Simples Nacional,"13,02%","R$ 16.609,87",
+,Servidores,"R$ 200,00",,"R$ 43.260,0","R$ 127.572,00","R$ 40.956,29","33,91%",,Gateway,"4,50%","R$ 5.740,74",
+,Contabilidade e Legal,"R$ 600,00",,,,,,,Infraestrutura,"16,47%","R$ 21.005,10",
+,Marketing,"R$ 3.000,00",,,,,,,,,"R$ 0,00",
+,Infraestrutura(Nuvem),"R$ 1.960,00",,,,,,,,,"R$ 0,00",
+,Pró-Labore,"R$ 35.000,00",,,,,,,,,,
+,Custos Adicionais,"R$ 1.000,00",,,,,,,,,,
+,,,,,,,,,,,,
+,,,,Viabilidade,,,,,,,,
+,,,,,,,,,,,,
+,,,,Taxa de Cancelamento,Novos Clientes por Mês,CAC (Custo de Aquisição de Cliente),ARPA (Receita Média por Conta),LTV (Valor Vitalício do Cliente),Relação LTV / CAC,Meses para Recuperar o CAC,Margem de Contribuição,Ponto de Equilíbrio (em MRR)
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,"2,00%",15,"R$ 200,00","R$ 455,61","R$ 22.780,71","R$ 113,90","0,44","R$ 84.216,29","R$ 65.530,85"
