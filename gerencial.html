@@ -154,7 +154,7 @@
             }
 
             // Carrega e exibe a tabela de Precificação
-            Papa.parse('dados/Finanças.xlsx - Precificação.csv', {
+            Papa.parse('./dados/Finanças.xlsx - Precificação.csv', {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
@@ -165,7 +165,7 @@
             });
 
             // Carrega e exibe a tabela de Faturamento e Despesas
-            Papa.parse('dados/Finanças.xlsx - Faturamento e Despesas Fixas.csv', {
+            Papa.parse('./dados/Finanças.xlsx - Faturamento e Despesas Fixas.csv', {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
