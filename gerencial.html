@@ -64,7 +64,12 @@
     <main class="container py-5">
         <h1 class="mb-4">Controle Gerencial</h1>
         <p>Insira abaixo os dados importados do Google Sheets para visualizar e manipular:</p>
-        <div id="sheetData"></div>
+        <div id="sheetData">
+            <h2>Precificação</h2>
+            <div id="tabela-precificacao"></div>
+            <h2>Faturamento e Despesas Fixas</h2>
+            <div id="tabela-faturamento"></div>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -149,7 +154,7 @@
             }
 
             // Carrega e exibe a tabela de Precificação
-            Papa.parse('Finanças.xlsx - Precificação.csv', {
+            Papa.parse('dados/Finanças.xlsx - Precificação.csv', {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
@@ -160,7 +165,7 @@
             });
 
             // Carrega e exibe a tabela de Faturamento e Despesas
-            Papa.parse('Finanças.xlsx - Faturamento e Despesas Fixas.csv', {
+            Papa.parse('dados/Finanças.xlsx - Faturamento e Despesas Fixas.csv', {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
