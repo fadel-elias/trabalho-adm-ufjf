@@ -52,9 +52,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html#sobre">Sobre</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#servicos">Planos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#contato">Contato</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./trabalhe-conosco.html">Trabalhe Conosco</a></li>
+                    <li class="nav-item"><span class="nav-link">|</span></li>
+                    <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Gerencial</a></li>
                 </ul>
             </div>
         </div>
@@ -62,12 +62,15 @@
 
     <!-- Controle Gerencial -->
     <main class="container py-5">
-        <h1 class="mb-4">Controle Gerencial</h1>
-        <p>Insira abaixo os dados importados do Google Sheets para visualizar e manipular:</p>
+        <h1 class="mb-4">Controle Financeiro</h1>
         <div id="sheetData">
+            <h2>Métricas</h2>
+            <div id="tabela-metricas"></div>
             <h2>Precificação</h2>
             <div id="tabela-precificacao"></div>
-            <h2>Faturamento e Despesas Fixas</h2>
+            <h2>Despesas Fixas e Custos Variáveis</h2>
+            <div id="tabela-despesas-fixas"></div>
+            <h2>Faturamento e Viabilidade</h2>
             <div id="tabela-faturamento"></div>
         </div>
     </main>
@@ -153,8 +156,19 @@
                 container.appendChild(tabela);
             }
 
+            // Carrega e exibe a tabela de Métricas
+            Papa.parse('./dados/Finanças_Site.xlsx - Métricas.csv', {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    const container = document.getElementById('tabela-metricas');
+                    criarTabela(results.data, container);
+                }
+            });
+
             // Carrega e exibe a tabela de Precificação
-            Papa.parse('./dados/Finanças.xlsx - Precificação.csv', {
+            Papa.parse('./dados/Finanças_Site.xlsx - Precificação.csv', {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
@@ -164,8 +178,19 @@
                 }
             });
 
+            // Carrega e exibe a tabela de Despesas Fixas e Custos Variáveis
+            Papa.parse('./dados/Finanças_Site.xlsx - Despesas Fixas e Custos Variáveis.csv', {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    const container = document.getElementById('tabela-despesas-fixas');
+                    criarTabela(results.data, container);
+                }
+            });
+
             // Carrega e exibe a tabela de Faturamento e Despesas
-            Papa.parse('./dados/Finanças.xlsx - Faturamento e Despesas Fixas.csv', {
+            Papa.parse('./dados/Finanças_Site.xlsx - Faturamento e Viabilidade.csv', {
                 download: true,
                 header: true,
                 skipEmptyLines: true,

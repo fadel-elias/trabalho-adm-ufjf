@@ -52,10 +52,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>   
-                    <li class="nav-item"><a class="nav-link" href="#servicos">Planos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./trabalhe-conosco.html">Trabalhe Conosco</a></li>
+                    <li class="nav-item"><span class="nav-link">|</span></li>
+                    <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Gerencial</a></li>
                 </ul>
             </div>
         </div>
@@ -382,7 +381,7 @@
         event.preventDefault();
         var login = document.getElementById('loginUser').value;
         var senha = document.getElementById('loginSenha').value;
-        if (login === 'admin' && senha === 'ADMitoquesomosbons123') {
+        if (login === 'admin' && senha === 'ADMito123') {
           window.location.href = './gerencial.html';
         } else {
           document.getElementById('loginError').classList.remove('d-none');
