@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Financeiro SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate Blue & Mint Green -->
+    <!-- Application Structure Plan: A dashboard structure was chosen for its clarity and immediate feedback. The core is an interactive control panel with sliders allowing users to simulate different client mix scenarios. Key results (Revenue, Costs, Profit) are displayed prominently as KPI cards. Dynamic charts provide deeper visual analysis of revenue and cost breakdowns. A static accordion section offers context on fixed costs and assumptions. This structure facilitates exploration and understanding by moving from high-level interaction (sliders) to immediate results (KPIs) and detailed analysis (charts), making the complex financial model tangible and user-friendly. -->
+    <!-- Visualization & Content Choices: 
+        - Client Scenarios -> Sliders: For intuitive, real-time exploration of different client numbers. (JS Interaction)
+        - Key Metrics (Revenue, Profit) -> KPI Cards: For high-visibility, immediate feedback on simulation changes. (JS DOM Update)
+        - Revenue Contribution by Plan -> Donut Chart: To visually compare the financial weight of each subscription plan. (Chart.js/Canvas)
+        - Cost Composition -> Stacked Bar Chart: To break down and compare the variable cost components for each plan and see the overall cost structure (Variable vs. Fixed). (Chart.js/Canvas)
+        - Background Info (Assumptions, Fixed Costs) -> Accordion: To provide deep context without cluttering the main dashboard. (HTML/CSS/JS)
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .kpi-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .slider-track {
+            background: #e2e8f0;
+        }
+        .slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-top: -6px;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Painel Financeiro Interativo SaaS</h1>
+            <p class="text-lg text-gray-600 mt-2">Simule cenários e analise a saúde financeira do seu negócio.</p>
+        </header>
+
+        <main class="space-y-8">
+            <section id="control-panel" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">Painel de Controle de Clientes</h2>
+                 <p class="text-gray-600 mb-6">Use os controles deslizantes para ajustar o número de clientes em cada plano e veja como isso afeta os resultados financeiros em tempo real. Esta simulação ajuda a entender o impacto de diferentes cenários de crescimento na receita e lucratividade.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="essential-clients" class="font-semibold text-gray-700">Plano Essencial</label>
+                        <div class="flex items-center gap-4 mt-2">
+                            <input type="range" id="essential-clients" min="0" max="500" value="250" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                            <span id="essential-clients-value" class="font-bold text-blue-600 text-lg w-12 text-center">250</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="professional-clients" class="font-semibold text-gray-700">Plano Profissional</label>
+                        <div class="flex items-center gap-4 mt-2">
+                            <input type="range" id="professional-clients" min="0" max="400" value="150" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                            <span id="professional-clients-value" class="font-bold text-blue-600 text-lg w-12 text-center">150</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="corporate-clients" class="font-semibold text-gray-700">Plano Corporativo</label>
+                        <div class="flex items-center gap-4 mt-2">
+                            <input type="range" id="corporate-clients" min="0" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                            <span id="corporate-clients-value" class="font-bold text-blue-600 text-lg w-12 text-center">10</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="key-results">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="kpi-card">
+                        <h3 class="text-lg font-semibold text-gray-500">Receita Bruta Mensal (MRR)</h3>
+                        <p id="total-revenue" class="text-2xl font-bold text-gray-900 mt-2">R$ 0,00</p>
+                    </div>
+                    <div class="kpi-card">
+                        <h3 class="text-lg font-semibold text-gray-500">Custos Totais Mensais</h3>
+                        <p id="total-costs" class="text-2xl font-bold text-gray-900 mt-2">R$ 0,00</p>
+                    </div>
+                    <div class="kpi-card">
+                        <h3 class="text-lg font-semibold text-gray-500">Lucro Operacional (EBITDA)</h3>
+                        <p id="total-profit" class="text-2xl font-bold text-gray-900 mt-2">R$ 0,00</p>
+                    </div>
+                     <div class="kpi-card">
+                        <h3 class="text-lg font-semibold text-gray-500">Ponto de Equilíbrio (Receita)</h3>
+                        <p id="break-even" class="text-2xl font-bold text-gray-900 mt-2">R$ 0,00</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="visualizations" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-1 text-gray-800">Composição da Receita</h2>
+                    <p class="text-gray-600 mb-4">Este gráfico mostra a participação de cada plano na receita bruta total. Observe como o plano Corporativo, mesmo com poucos clientes, pode representar uma fatia significativa do faturamento.</p>
+                    <div class="chart-container mx-auto max-w-sm">
+                        <canvas id="revenue-chart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-1 text-gray-800">Análise de Custos</h2>
+                    <p class="text-gray-600 mb-4">Abaixo, visualizamos a estrutura de custos variáveis por plano e a divisão geral entre custos fixos e variáveis. Isso ajuda a entender onde o dinheiro é gasto para manter a operação.</p>
+                     <div class="chart-container mx-auto max-w-lg">
+                        <canvas id="costs-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="assumptions" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">Premissas e Detalhes do Modelo</h2>
+                <div class="space-y-4">
+                    <div class="border rounded-lg">
+                        <button class="accordion-toggle flex justify-between items-center w-full p-4 font-semibold text-left">
+                            <span>Custos Variáveis por Plano</span>
+                            <span class="transform transition-transform duration-200">+</span>
+                        </button>
+                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                            <div class="p-4 bg-gray-50">
+                                <p class="mb-4">Os custos variáveis são aqueles que escalam com o número de clientes. Eles incluem a infraestrutura de nuvem, taxas de pagamento e impostos sobre a receita.</p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                    <li><b>Plano Essencial:</b> Custo total de R$ 25,43 (Infra: R$ 18,00, Gateway: R$ 1,91, Impostos: R$ 5,52).</li>
+                                    <li><b>Plano Profissional:</b> Custo total de R$ 62,28 (Infra: R$ 35,00, Gateway: R$ 7,01, Impostos: R$ 20,27).</li>
+                                    <li><b>Plano Corporativo:</b> Custo total de R$ 1.471,15 (Infra: R$ 612,00, Gateway: R$ 220,67, Impostos: R$ 638,48).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border rounded-lg">
+                         <button class="accordion-toggle flex justify-between items-center w-full p-4 font-semibold text-left">
+                            <span>Custos Fixos Mensais</span>
+                            <span class="transform transition-transform duration-200">+</span>
+                        </button>
+                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                            <div class="p-4 bg-gray-50">
+                                <p class="mb-4">Os custos fixos são despesas que a empresa tem independentemente do número de clientes. O total mensal é de R$ 41.700,00.</p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                    <li><b>Pró-Labore:</b> R$ 35.000,00</li>
+                                    <li><b>Marketing:</b> R$ 3.000,00</li>
+                                    <li><b>Plataformas/Softwares:</b> R$ 1.500,00</li>
+                                    <li><b>Custos Adicionais:</b> R$ 1.000,00</li>
+                                    <li><b>Contabilidade e Legal:</b> R$ 600,00</li>
+                                    <li><b>Infraestrutura (base/nuvem):</b> R$ 400,00</li>
+                                     <li><b>Servidores (base):</b> R$ 200,00</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="border rounded-lg">
+                         <button class="accordion-toggle flex justify-between items-center w-full p-4 font-semibold text-left">
+                            <span>Premissas de Tributação e Taxas</span>
+                            <span class="transform transition-transform duration-200">+</span>
+                        </button>
+                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                            <div class="p-4 bg-gray-50">
+                                <p class="mb-4">As premissas abaixo são cruciais para o cálculo da lucratividade.</p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                    <li><b>Imposto (Simples Nacional):</b> A alíquota efetiva considerada é de 13,02% sobre a receita bruta, enquadrada no Anexo III através da gestão do Fator R.</li>
+                                    <li><b>Taxa de Gateway de Pagamento:</b> Uma média ponderada de 4,50% é aplicada sobre cada transação para cobrir os custos de processadores de pagamento.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const financialData = {
+            plans: {
+                essential: {
+                    name: 'Essencial',
+                    price: 42.37,
+                    costs: {
+                        infrastructure: 18.00,
+                        gatewayRate: 0.045,
+                        taxRate: 0.1302
+                    }
+                },
+                professional: {
+                    name: 'Profissional',
+                    price: 155.69,
+                    costs: {
+                        infrastructure: 35.00,
+                        gatewayRate: 0.045,
+                        taxRate: 0.1302
+                    }
+                },
+                corporate: {
+                    name: 'Corporativo',
+                    price: 4903.85,
+                    costs: {
+                        infrastructure: 612.00,
+                        gatewayRate: 0.045,
+                        taxRate: 0.1302
+                    }
+                }
+            },
+            fixedCosts: 41700.00
+        };
+
+        const essentialClientsSlider = document.getElementById('essential-clients');
+        const professionalClientsSlider = document.getElementById('professional-clients');
+        const corporateClientsSlider = document.getElementById('corporate-clients');
+
+        const essentialClientsValue = document.getElementById('essential-clients-value');
+        const professionalClientsValue = document.getElementById('professional-clients-value');
+        const corporateClientsValue = document.getElementById('corporate-clients-value');
+
+        const totalRevenueEl = document.getElementById('total-revenue');
+        const totalCostsEl = document.getElementById('total-costs');
+        const totalProfitEl = document.getElementById('total-profit');
+        const breakEvenEl = document.getElementById('break-even');
+
+        let revenueChart, costsChart;
+        
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function calculateMetrics() {
+            const clientCounts = {
+                essential: parseInt(essentialClientsSlider.value),
+                professional: parseInt(professionalClientsSlider.value),
+                corporate: parseInt(corporateClientsSlider.value)
+            };
+
+            let totalRevenue = 0;
+            let totalVariableCosts = 0;
+            const revenueByPlan = {};
+
+            for (const planKey in financialData.plans) {
+                const plan = financialData.plans[planKey];
+                const count = clientCounts[planKey];
+
+                const revenue = plan.price * count;
+                revenueByPlan[planKey] = revenue;
+                totalRevenue += revenue;
+
+                const gatewayCost = revenue * plan.costs.gatewayRate;
+                const taxCost = revenue * plan.costs.taxRate;
+                const infraCost = plan.costs.infrastructure * count;
+                totalVariableCosts += infraCost + gatewayCost + taxCost;
+            }
+
+            const totalCosts = totalVariableCosts + financialData.fixedCosts;
+            const totalProfit = totalRevenue - totalCosts;
+
+            const marginOfContributionRate = (totalRevenue - totalVariableCosts) / totalRevenue;
+            const breakEvenPoint = totalRevenue > 0 ? financialData.fixedCosts / marginOfContributionRate : 0;
+            
+            return {
+                totalRevenue,
+                totalCosts,
+                totalProfit,
+                totalVariableCosts,
+                revenueByPlan,
+                breakEvenPoint
+            };
+        }
+
+        function updateDashboard() {
+            essentialClientsValue.textContent = essentialClientsSlider.value;
+            professionalClientsValue.textContent = professionalClientsSlider.value;
+            corporateClientsValue.textContent = corporateClientsSlider.value;
+
+            const metrics = calculateMetrics();
+
+            totalRevenueEl.textContent = formatCurrency(metrics.totalRevenue);
+            totalCostsEl.textContent = formatCurrency(metrics.totalCosts);
+            totalProfitEl.textContent = formatCurrency(metrics.totalProfit);
+            breakEvenEl.textContent = formatCurrency(metrics.breakEvenPoint);
+
+            if (metrics.totalProfit < 0) {
+                totalProfitEl.classList.remove('text-green-600');
+                totalProfitEl.classList.add('text-red-600');
+            } else {
+                totalProfitEl.classList.remove('text-red-600');
+                totalProfitEl.classList.add('text-green-600');
+            }
+
+            updateRevenueChart(metrics.revenueByPlan);
+            updateCostsChart(metrics.totalVariableCosts, financialData.fixedCosts);
+        }
+
+        function createCharts() {
+            const revenueCtx = document.getElementById('revenue-chart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Essencial', 'Profissional', 'Corporativo'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#3b82f6', '#10b981', '#6366f1'],
+                        borderColor: '#f8fafc',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += formatCurrency(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const costsCtx = document.getElementById('costs-chart').getContext('2d');
+            costsChart = new Chart(costsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Custos Totais'],
+                    datasets: [{
+                        label: 'Custos Variáveis',
+                        data: [0],
+                        backgroundColor: '#3b82f6',
+                    }, {
+                        label: 'Custos Fixos',
+                        data: [0],
+                        backgroundColor: '#10b981',
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                             ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                         tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += formatCurrency(context.parsed.x);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRevenueChart(revenueByPlan) {
+            revenueChart.data.datasets[0].data = [
+                revenueByPlan.essential,
+                revenueByPlan.professional,
+                revenueByPlan.corporate
+            ];
+            revenueChart.update();
+        }
+        
+        function updateCostsChart(variableCosts, fixedCosts) {
+             costsChart.data.datasets[0].data[0] = variableCosts;
+             costsChart.data.datasets[1].data[0] = fixedCosts;
+             costsChart.update();
+        }
+
+        document.querySelectorAll('.accordion-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                const icon = button.querySelector('span:last-child');
+
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(45deg)';
+                }
+            });
+        });
+        
+        essentialClientsSlider.addEventListener('input', updateDashboard);
+        professionalClientsSlider.addEventListener('input', updateDashboard);
+        corporateClientsSlider.addEventListener('input', updateDashboard);
+        
+        window.addEventListener('load', () => {
+            createCharts();
+            updateDashboard();
+        });
+
+    </script>
+</body>
+</html>

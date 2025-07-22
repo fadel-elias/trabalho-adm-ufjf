@@ -1,4 +1,4 @@
-Planos,,Custo de Infraestrutura,,Margem de lucro desejada,,Número de Clientes estimado,,Despesas Variaveis
-Essencial,,"R$ 25,43",,50%,,120,,"17,52%"
-Profissional,,"R$ 50,28",,60%,,150,,"17,52%"
-Coorporativo,,"R$ 1.041,15",,70%,,10,,"17,52%"
+Planos,Custo de Infraestrutura,Margem de lucro desejada,Número de Clientes estimado,Despesas Variaveis
+Essencial,"R$ 25,43",50%,120,"17,52%"
+Profissional,"R$ 50,28",60%,150,"17,52%"
+Coorporativo,"R$ 1.041,15",70%,10,"17,52%"
